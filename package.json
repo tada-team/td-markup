@@ -9,12 +9,13 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "tsc": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "lint": "eslint . --ext .ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^4.14.0",
     "@typescript-eslint/parser": "^4.14.0",
     "eslint": "^7.18.0",
@@ -22,6 +23,8 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
+    "ts-jest": "^26.4.4",
+    "tslib": "^1.14.1",
     "typescript": "^4.1.3"
   }
 }
