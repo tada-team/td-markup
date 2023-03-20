@@ -1,30 +1,43 @@
 {
   "name": "tdmarkup-ts",
-  "version": "0.0.1",
-  "description": "",
-  "main": "lib/index.js",
+  "version": "1.0.0",
+  "description": "Tada messenger markup parser",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
   "files": [
-    "lib/**/*"
+    "dist/**/*"
   ],
-  "types": "lib/index.d.ts",
-  "scripts": {
-    "tsc": "tsc",
-    "test": "jest",
-    "lint": "eslint . --ext .ts"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tada-team/td-markup.git"
   },
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "Tada",
+    "markup",
+    "TypeScript"
+  ],
+  "author": "tada.team info@tada.team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tada-team/td-markup/issues"
+  },
+  "homepage": "https://github.com/tada-team/td-markup#readme",
+  "scripts": {
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
+    "test": "jest",
+    "build": "tsc -p tsconfig.json"
+  },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
-    "@typescript-eslint/eslint-plugin": "^4.14.0",
-    "@typescript-eslint/parser": "^4.14.0",
-    "eslint": "^7.18.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "ts-jest": "^26.4.4",
-    "tslib": "^1.14.1",
-    "typescript": "^4.1.3"
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "esbuild": "^0.14.38",
+    "eslint": "^8.14.0",
+    "jest": "27.0.0",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@tada-team/tdproto-ts": "^0.6.85"
   }
 }
