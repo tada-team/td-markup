@@ -1,22 +1,24 @@
-import tdmarkup, { MarkupEntity } from './index'
+import {MarkupEntityJSON} from '@tada-team/tdproto-ts'
 
-const specs: {
+type Spec = {
   name: string,
   s: string,
-  mu: MarkupEntity[],
+  mu: MarkupEntityJSON[],
   expected: string
-}[] = [
+}
+
+const specs: Spec[] = [
   {
     name: 'noop',
     s: '123',
     mu: [],
-    expected: '<div><span>123</span></div>'
+    expected: '<span>123</span>'
   },
   {
     name: 'empty bold',
     s: '**',
     mu: [],
-    expected: '<div><span>**</span></div>'
+    expected: '<span>**</span>'
   },
   {
     name: 'one bold',
@@ -30,13 +32,13 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><b>1</b></div>'
+    expected: '<b>1</b>'
   },
   {
     name: 'bold is inline only',
     s: '123 *45\n6* 789',
     mu: [],
-    expected: '<div><span>123 *45\n6* 789</span></div>'
+    expected: '<span>123 *45\n6* 789</span>'
   },
   {
     name: 'bold ru',
@@ -50,7 +52,7 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><span>привет, </span><b>ромашки!</b></div>'
+    expected: '<span>привет, </span><b>ромашки!</b>'
   },
   {
     name: 'bold only',
@@ -64,7 +66,7 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><b>123</b></div>'
+    expected: '<b>123</b>'
   },
   {
     name: 'bold and punctuation',
@@ -78,13 +80,13 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><b>123</b><span>!</span></div>'
+    expected: '<b>123</b><span>!</span>'
   },
   {
     name: 'not a bold',
     s: '*123\n456*',
     mu: [],
-    expected: '<div><span>*123\n456*</span></div>'
+    expected: '<span>*123\n456*</span>'
   },
   {
     name: 'bold eof',
@@ -98,7 +100,7 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><span>123 </span><b>456</b></div>'
+    expected: '<span>123 </span><b>456</b>'
   },
   {
     name: 'bold eol',
@@ -119,7 +121,7 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><span>123 </span><b>456</b><span>\n</span><b>789</b></div>'
+    expected: '<span>123 </span><b>456</b><span>\n</span><b>789</b>'
   },
   {
     name: 'double bold',
@@ -140,7 +142,7 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><span>123 </span><b>456</b><span> 789 </span><b>10</b></div>'
+    expected: '<span>123 </span><b>456</b><span> 789 </span><b>10</b>'
   },
   {
     name: 'code only',
@@ -154,7 +156,7 @@ const specs: {
         typ: 'code'
       }
     ],
-    expected: '<div><code>123</code></div>'
+    expected: '<code>123</code>'
   },
   {
     name: 'no markup inside code',
@@ -168,7 +170,7 @@ const specs: {
         typ: 'code'
       }
     ],
-    expected: '<div><code>*123*</code></div>'
+    expected: '<code>*123*</code>'
   },
   {
     name: 'no markup inside code 2',
@@ -182,7 +184,7 @@ const specs: {
         typ: 'code'
       }
     ],
-    expected: '<div><code>123 ~456~ </code></div>'
+    expected: '<code>123 ~456~ </code>'
   },
   {
     name: 'no markup inside code 3',
@@ -196,7 +198,7 @@ const specs: {
         typ: 'code'
       }
     ],
-    expected: '<div><span>example: </span><code> 123 ~456~ </code></div>'
+    expected: '<span>example: </span><code> 123 ~456~ </code>'
   },
   {
     name: 'italic',
@@ -210,25 +212,25 @@ const specs: {
         typ: 'italic'
       }
     ],
-    expected: '<div><span>123 </span><i>456</i><span> 789</span></div>'
+    expected: '<span>123 </span><i>456</i><span> 789</span>'
   },
   {
     name: 'not italic',
     s: '123 / 456/ 789',
     mu: [],
-    expected: '<div><span>123 / 456/ 789</span></div>'
+    expected: '<span>123 / 456/ 789</span>'
   },
   {
     name: 'not italic 2',
     s: '123 / 456 / 789',
     mu: [],
-    expected: '<div><span>123 / 456 / 789</span></div>'
+    expected: '<span>123 / 456 / 789</span>'
   },
   {
     name: 'not italic 3',
     s: '123/ 456 /789',
     mu: [],
-    expected: '<div><span>123/ 456 /789</span></div>'
+    expected: '<span>123/ 456 /789</span>'
   },
   {
     name: 'not italic 4 with link',
@@ -242,7 +244,7 @@ const specs: {
         repl: 'ya.ru'
       }
     ],
-    expected: '<div><a href="https://ya.ru/">ya.ru</a></div>'
+    expected: '<a href="https://ya.ru/">ya.ru</a>'
   },
   {
     name: 'bold italic',
@@ -265,7 +267,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><b><i>123</i></b></div>'
+    expected: '<b><i>123</i></b>'
   },
   {
     name: 'code block',
@@ -279,7 +281,7 @@ const specs: {
         typ: 'codeblock'
       }
     ],
-    expected: '<div><pre>code</pre></div>'
+    expected: '<pre>code</pre>'
   },
   {
     name: 'code block multiline',
@@ -293,7 +295,7 @@ const specs: {
         typ: 'codeblock'
       }
     ],
-    expected: '<div><pre>code\nnl</pre></div>'
+    expected: '<pre>code\nnl</pre>'
   },
   {
     name: 'code block with newlines',
@@ -307,7 +309,7 @@ const specs: {
         typ: 'codeblock'
       }
     ],
-    expected: '<div><pre>code\nline</pre></div>'
+    expected: '<pre>code\nline</pre>'
   },
   {
     name: 'code block with newlines with spaces',
@@ -321,13 +323,13 @@ const specs: {
         typ: 'codeblock'
       }
     ],
-    expected: '<div><pre>code\nline</pre></div>'
+    expected: '<pre>code\nline</pre>'
   },
   {
     name: 'code incomplete',
     s: '```code\nnl``',
     mu: [],
-    expected: '<div><span>```code\nnl``</span></div>'
+    expected: '<span>```code\nnl``</span>'
   },
   {
     name: 'bold italic with spaces',
@@ -350,7 +352,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><span>123 </span><i><span>4 </span><b>5</b><span> 6</span></i><span> 789</span></div>'
+    expected: '<span>123 </span><i><span>4 </span><b>5</b><span> 6</span></i><span> 789</span>'
   },
   {
     name: 'quote',
@@ -364,7 +366,7 @@ const specs: {
         typ: 'quote'
       }
     ],
-    expected: '<div><blockquote>123</blockquote><span>456</span></div>'
+    expected: '<blockquote>123</blockquote><span>456</span>'
   },
   {
     name: 'quote only',
@@ -377,7 +379,7 @@ const specs: {
         typ: 'quote'
       }
     ],
-    expected: '<div><blockquote>123</blockquote></div>'
+    expected: '<blockquote>123</blockquote>'
   },
   {
     name: 'bold in quote',
@@ -400,7 +402,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><blockquote><span>12 </span><b>3</b></blockquote><span>456</span></div>'
+    expected: '<blockquote><span>12 </span><b>3</b></blockquote><span>456</span>'
   },
   {
     name: 'quote in quote',
@@ -420,7 +422,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><blockquote><span>3 </span><span>&gt;</span><span> 4</span></blockquote></div>'
+    expected: '<blockquote><span>3 </span><span>&gt;</span><span> 4</span></blockquote>'
   },
   {
     name: 'not a quote',
@@ -432,7 +434,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><span>3 </span><span>&gt;</span><span> 4</span></div>'
+    expected: '<span>3 </span><span>&gt;</span><span> 4</span>'
   },
   {
     name: 'quote from new line',
@@ -445,7 +447,7 @@ const specs: {
         typ: 'quote'
       }
     ],
-    expected: '<div><blockquote> </blockquote><span>b</span></div>'
+    expected: '<blockquote> </blockquote><span>b</span>'
   },
   {
     name: 'link only',
@@ -459,7 +461,7 @@ const specs: {
         repl: 'ya.ru'
       }
     ],
-    expected: '<div><span>123 </span><a href="https://ya.ru">ya.ru</a><span> 456</span></div>'
+    expected: '<span>123 </span><a href="https://ya.ru">ya.ru</a><span> 456</span>'
   },
   {
     name: 'mailto',
@@ -473,7 +475,7 @@ const specs: {
         repl: 'xxx@gmail.com'
       }
     ],
-    expected: '<div><span>123 </span><a href="mailto:xxx@gmail.com">xxx@gmail.com</a><span> 456</span></div>'
+    expected: '<span>123 </span><a href="mailto:xxx@gmail.com">xxx@gmail.com</a><span> 456</span>'
   },
   {
     name: 'link only with trailing slash',
@@ -487,7 +489,7 @@ const specs: {
         repl: 'ya.ru/?'
       }
     ],
-    expected: '<div><span>123 </span><a href="https://ya.ru/?">ya.ru/?</a><span> 456</span></div>'
+    expected: '<span>123 </span><a href="https://ya.ru/?">ya.ru/?</a><span> 456</span>'
   },
   {
     name: 'manage.py',
@@ -501,7 +503,7 @@ const specs: {
         repl: 'manage.py'
       }
     ],
-    expected: '<div><span>123 </span><a href="http://manage.py">manage.py</a><span> 456</span></div>'
+    expected: '<span>123 </span><a href="http://manage.py">manage.py</a><span> 456</span>'
   },
   {
     name: 'tag',
@@ -518,7 +520,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><span>&lt;</span><span>br</span><span>&gt;</span></div>'
+    expected: '<span>&lt;</span><span>br</span><span>&gt;</span>'
   },
   {
     name: 'lt',
@@ -555,7 +557,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><span>&lt;</span><span>&lt;</span><span>&lt;</span><span>&lt;</span><span>&lt;</span><span>&lt;</span></div>'
+    expected: '<span>&lt;</span><span>&lt;</span><span>&lt;</span><span>&lt;</span><span>&lt;</span><span>&lt;</span>'
   },
   {
     name: 'bolditalic tag',
@@ -602,7 +604,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><span>&lt;</span><span>b</span><span>&gt;</span><span>&lt;</span><span>i</span><span>&gt;</span><span>123</span><span>&lt;</span><span>/i</span><span>&gt;</span><span>&lt;</span><span>/b</span><span>&gt;</span></div>'
+    expected: '<span>&lt;</span><span>b</span><span>&gt;</span><span>&lt;</span><span>i</span><span>&gt;</span><span>123</span><span>&lt;</span><span>/i</span><span>&gt;</span><span>&lt;</span><span>/b</span><span>&gt;</span>'
   },
   {
     name: 'bold italic without markup',
@@ -649,7 +651,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><span>&lt;</span><span>b</span><span>&gt;</span><span>1 </span><span>&lt;</span><span>i</span><span>&gt;</span><span>2</span><span>&lt;</span><span>/i</span><span>&gt;</span><span> 3</span><span>&lt;</span><span>/b</span><span>&gt;</span></div>'
+    expected: '<span>&lt;</span><span>b</span><span>&gt;</span><span>1 </span><span>&lt;</span><span>i</span><span>&gt;</span><span>2</span><span>&lt;</span><span>/i</span><span>&gt;</span><span> 3</span><span>&lt;</span><span>/b</span><span>&gt;</span>'
   },
   {
     name: 'tag after markup',
@@ -682,7 +684,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><i><b>6688</b></i><span> 3</span><span>&lt;</span><span>br</span><span>&gt;</span></div>'
+    expected: '<i><b>6688</b></i><span> 3</span><span>&lt;</span><span>br</span><span>&gt;</span>'
   },
   {
     name: 'bold italic with markup',
@@ -745,7 +747,7 @@ const specs: {
         typ: 'unsafe'
       }
     ],
-    expected: '<div><span>&lt;</span><span>b</span><span>&gt;</span><span>1 </span><span>&lt;</span><span>i</span><span>&gt;</span><span>2</span><span>&lt;</span><span>/i</span><span>&gt;</span><span> </span><i><b>6688</b></i><span> 3</span><span>&lt;</span><span>/b</span><span>&gt;</span></div>'
+    expected: '<span>&lt;</span><span>b</span><span>&gt;</span><span>1 </span><span>&lt;</span><span>i</span><span>&gt;</span><span>2</span><span>&lt;</span><span>/i</span><span>&gt;</span><span> </span><i><b>6688</b></i><span> 3</span><span>&lt;</span><span>/b</span><span>&gt;</span>'
   },
   {
     name: 'nested markup no spaces',
@@ -759,7 +761,7 @@ const specs: {
         typ: 'underscore'
       }
     ],
-    expected: '<div><u>1-*2-~34~-6*-7</u></div>'
+    expected: '<u>1-*2-~34~-6*-7</u>'
   },
   {
     name: 'date',
@@ -774,7 +776,7 @@ const specs: {
         time: '2000-01-02T10:15:00.000000-0700'
       }
     ],
-    expected: '<div><time datetime="2000-01-02T10:15:00.000000-0700">1/2/2000, 8:15:00 PM</time></div>'
+    expected: '<time datetime="2000-01-02T10:15:00.000000-0700">1/2/2000, 8:15:00 PM</time>'
   },
   {
     name: 'date in text',
@@ -789,7 +791,7 @@ const specs: {
         time: '2020-11-12T13:00:45.795000Z'
       }
     ],
-    expected: '<div><span>Тестовая задача с крайним сроком </span><time datetime="2020-11-12T13:00:45.795000Z">11/12/2020, 4:00:45 PM</time></div>'
+    expected: '<span>Тестовая задача с крайним сроком </span><time datetime="2020-11-12T13:00:45.795000Z">11/12/2020, 4:00:45 PM</time>'
   },
   {
     name: 'clear-all',
@@ -838,13 +840,13 @@ const specs: {
         typ: 'codeblock'
       }
     ],
-    expected: '<div><u>x</u><span> </span><s>y</s><span> </span><b>z</b><span> </span><i>a</i><span> </span><code>b</code><span> </span><pre>c</pre></div>'
+    expected: '<u>x</u><span> </span><s>y</s><span> </span><b>z</b><span> </span><i>a</i><span> </span><code>b</code><span> </span><pre>c</pre>'
   },
   {
     name: 'username',
     s: 'aaa @user1_name1 @user2_name2',
     mu: [],
-    expected: '<div><span>aaa @user1_name1 @user2_name2</span></div>'
+    expected: '<span>aaa @user1_name1 @user2_name2</span>'
   },
   {
     name: 'bold-username',
@@ -858,7 +860,7 @@ const specs: {
         typ: 'bold'
       }
     ],
-    expected: '<div><span>aaa </span><b>@user1_name1 @user2_name2</b></div>'
+    expected: '<span>aaa </span><b>@user1_name1 @user2_name2</b>'
   },
   {
     name: 'punctuation',
@@ -872,19 +874,19 @@ const specs: {
         typ: 'underscore'
       }
     ],
-    expected: '<div><u>123</u><span>?</span></div>'
+    expected: '<u>123</u><span>?</span>'
   },
   {
     name: 'double',
     s: '_123__ f',
     mu: [],
-    expected: '<div><span>_123__ f</span></div>'
+    expected: '<span>_123__ f</span>'
   },
   {
     name: 'double-double',
     s: '_123 _ f',
     mu: [],
-    expected: '<div><span>_123 _ f</span></div>'
+    expected: '<span>_123 _ f</span>'
   },
   {
     name: 'emoji',
@@ -912,7 +914,7 @@ const specs: {
         typ: 'underscore'
       }
     ],
-    expected: '<div><u>hey</u><span> </span><b>hop😂</b><span> </span><u>лалалей</u></div>'
+    expected: '<u>hey</u><span> </span><b>hop😂</b><span> </span><u>лалалей</u>'
   },
   {
     name: 'code in the middle',
@@ -926,7 +928,7 @@ const specs: {
         typ: 'code'
       }
     ],
-    expected: '<div><span>привет </span><code>cod</code><span> рыба</span></div>'
+    expected: '<span>привет </span><code>cod</code><span> рыба</span>'
   },
   {
     name: 'bold and bold italic',
@@ -949,7 +951,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><b><span>bold </span><i>italic</i></b></div>'
+    expected: '<b><span>bold </span><i>italic</i></b>'
   },
   {
     name: 'mix of plain and nested',
@@ -986,7 +988,7 @@ const specs: {
         typ: 'italic'
       }
     ],
-    expected: '<div><span>plain </span><b>simple bold</b><span> plain again </span><b><span>bold with nested </span><i>italic</i></b><span> </span><i>just italic</i></div>'
+    expected: '<span>plain </span><b>simple bold</b><span> plain again </span><b><span>bold with nested </span><i>italic</i></b><span> </span><i>just italic</i>'
   },
   {
     name: 'double italic between plain',
@@ -1007,7 +1009,7 @@ const specs: {
         typ: 'italic'
       }
     ],
-    expected: '<div><span>12 </span><i>34</i><span> 56 </span><i>89</i><span> 90</span></div>'
+    expected: '<span>12 </span><i>34</i><span> 56 </span><i>89</i><span> 90</span>'
   },
   {
     name: 'bold with nested italic',
@@ -1030,7 +1032,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><b><span>bold with nested </span><i>italic</i></b></div>'
+    expected: '<b><span>bold with nested </span><i>italic</i></b>'
   },
   {
     name: 'plain and bold with nested italic',
@@ -1053,7 +1055,7 @@ const specs: {
         ]
       }
     ],
-    expected: '<div><span>plain and </span><b><span>bold with nested </span><i>italic</i></b></div>'
+    expected: '<span>plain and </span><b><span>bold with nested </span><i>italic</i></b>'
   }
 ]
 

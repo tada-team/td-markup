@@ -1,208 +1,110 @@
-import tests from './data'
+import {MarkupEntity} from '@tada-team/tdproto-ts'
 
-export type MarkupType =
-  | 'bold'
-  | 'italic'
-  | 'underscore'
-  | 'strike'
-  | 'code'
-  | 'codeblock'
-  | 'quote'
-  | 'link'
-  | 'time'
-  | 'unsafe'
-
-export interface MarkupEntity {
-  // Open marker offset
-  op: number
-
-  // Open marker length
-  oplen?: number
-
-  // Close marker offset
-  cl: number
-
-  // Close marker length
-  cllen?: number
-
-  // Marker type
-  typ: MarkupType
-
-  // Url, for Link type
-  url?: string
-
-  // Text replacement.
-  repl?: string
-
-  // Time, for Time type
-  time?: string
-
-  // List of internal markup entities
-  childs?: MarkupEntity[]
-}
-
-const logEnabled = false
+let isDebug = false
 const log = (...args: any[]) => {
-  logEnabled && log.apply(null, args)
+  isDebug && console.log(...args)
 }
 
-const getWrapper = (me: MarkupEntity): HTMLElement => {
-  let tag: keyof HTMLElementTagNameMap
-  const attrs: Map<string, string> = new Map()
-
+const createChild = (me: MarkupEntity): HTMLElement => {
   switch (me.typ) {
     case 'bold':
-      tag = 'b'
-      break
+      return document.createElement('b')
     case 'code':
-      tag = 'code'
-      break
+      return document.createElement('code')
     case 'codeblock':
-      tag = 'pre'
-      break
+      return document.createElement('pre')
     case 'italic':
-      tag = 'i'
-      break
-    case 'link':
-      tag = 'a'
-      log('url', me.url)
-      me.url && attrs.set('href', me.url)
-      break
+      return document.createElement('i')
+    case 'link': {
+      const linkEl = document.createElement('a')
+      if (me.url) linkEl.setAttribute('href', me.url)
+      return linkEl
+    }
     case 'quote':
-      tag = 'blockquote'
-      break
+      return document.createElement('blockquote')
     case 'strike':
-      tag = 's'
-      break
-    case 'time':
-      tag = 'time'
-      me.time && attrs.set('datetime', me.time)
-      break
+      return document.createElement('s')
+    case 'time': {
+      const timeEl = document.createElement('time')
+      if (me.time) timeEl.setAttribute('datetime', me.time)
+      return timeEl
+    }
     case 'underscore':
-      tag = 'u'
-      break
+      return document.createElement('u')
     case 'unsafe':
-    default:
-      tag = 'span'
+      return document.createElement('span')
   }
 
-  const el = document.createElement(tag)
-  attrs.forEach((val, attr) => el.setAttribute(attr, val))
-
-  return el
+  return document.createElement('span')
 }
 
-const createPlain = (
-  runes: string[],
-  from?: number,
-  to?: number
-): HTMLSpanElement => {
-  const text = runes.slice(from ?? 0, to ?? runes.length).join('')
-  log(`text between |${text}|`)
+const createPlain = (source: string[]) => {
   const el = document.createElement('span')
-  el.textContent = text
+  el.textContent = source.join('')
   return el
 }
 
-const toHTML = (s: string, markup: MarkupEntity[] = []): HTMLElement => {
-  const el = document.createElement('div')
-  const runes = Array.from(s)
-
-  convert(runes, markup, el)
-
-  log('returning', el)
-  return el
-}
-
-const convert = (
-  runes: string[],
-  markup: MarkupEntity[],
-  el: HTMLElement
-): void => {
+const convert = (source: string[], markup: MarkupEntity[], el: HTMLElement): void => {
   let prev = 0
 
   if (markup.length === 0) {
-    log('no markup, appending plain', runes.join(''))
-    el.appendChild(createPlain(runes))
+    log(`no markup, appending plain ${source}`)
+    el.appendChild(createPlain(source))
     return
   }
 
   markup.forEach(me => {
     log('looking at markup', me)
 
-    if (prev < me.op) {
-      log('text before start of markup, appending:', runes.join(''), prev, me.op)
-      el.appendChild(createPlain(runes, prev, me.op))
-    }
+    const child = createChild(me)
+    log('created child of type', me.typ)
 
-    const markupEl = getWrapper(me)
-    log('created markupEl of type', me.typ)
-
-    const start = me.op + (me.oplen ?? 0)
-    const end = me.cl
-    const middleRunes = runes.slice(start, end)
-    log('middle runes:', middleRunes.join(''))
+    const context = source.slice(me.op + (me.oplen ?? 0), me.cl)
 
     if (me.childs && me.childs.length > 0) {
       log('found children, processing...')
-      convert(middleRunes, me.childs, markupEl)
+      convert(context, me.childs, child)
     } else {
-      log('no children, inserting:', middleRunes.join(''))
-      if (me.repl) markupEl.textContent = me.repl
-      else if (me.time) markupEl.textContent = new Date(me.time).toLocaleString()
-      else markupEl.textContent = middleRunes.join('')
+      log('no children, inserting:', context)
+      if (me.repl) child.textContent = me.repl
+      else if (me.time) child.textContent = new Date(me.time).toLocaleString()
+      else child.textContent = context.join('')
     }
 
-    el.appendChild(markupEl)
+    if (prev < me.op) {
+      log('text before start of markup, appending:', source, prev, me.op)
+      el.appendChild(createPlain(source.slice(prev, me.op)))
+    }
+
+    el.appendChild(child)
 
     prev = me.cl + (me?.cllen ?? 0)
     log('new prev:', prev)
   })
 
-  if (prev < runes.length) {
-    log('text after end of markup, appending:', runes.join(''), prev, runes.length)
-    el.appendChild(createPlain(runes, prev, runes.length))
+  if (prev < source.length) {
+    log('text after end of markup, appending:', source, prev)
+    el.appendChild(createPlain(source.slice(prev)))
   }
 }
 
-const runTest = (t: any) => {
-  log('test is', t)
-  const container = document.createElement('div')
-
-  const name = document.createElement('div')
-  name.innerText = t.name
-  container.appendChild(name)
-
-  const test = document.createElement('div')
-  test.innerText = t.s
-  container.appendChild(test)
-
-  const r = toHTML(t.s, t.mu)
-  container.appendChild(r)
-
-  const separator = document.createElement('div')
-  separator.innerText = '----------'
-  container.appendChild(separator)
-
-  document.querySelector('body')?.appendChild(container)
-  log('----------')
+export const debug = (enable = true) => {
+  isDebug = enable
 }
 
-const runAll = () => {
-  tests.forEach(runTest)
-  const specs = tests.map(t => {
-    const b = Object.assign(t, { expected: toHTML(t.s, t.mu).outerHTML })
-    return b
-  })
-  console.warn('specs', specs)
+export const toHTMLElement = (tag: string, source: string, markup: MarkupEntity[] = []): HTMLElement => {
+  const el = document.createElement(tag)
+  convert(Array.from(source), markup, el)
+  return el
 }
 
-const runSingle = (s: string) => {
-  runTest(tests.find(t => t.name === s))
+export const toHTML = (source: string, markup: MarkupEntity[] = []): string => {
+  const el = toHTMLElement('div', source, markup)
+  return el.innerHTML
 }
-
-// runAll()
 
 export default {
-  toHTML
+  debug,
+  toHTML,
+  toHTMLElement
 }
